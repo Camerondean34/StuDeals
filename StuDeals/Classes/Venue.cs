@@ -9,7 +9,7 @@
         private string _Image;
         private List<string> _Tags;
 
-        public Venue(string pID, string pName, string pDescription, string pLocation, string pImage)
+        public Venue(int pID, string pName, string pDescription, string pLocation, string pImage)
         {
             _ID = pID;
             _Name = pName;

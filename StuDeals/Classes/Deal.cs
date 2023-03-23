@@ -7,7 +7,7 @@
         private string _Description;
         private string _Image;
 
-        public Deal(string pID, string pName, string pDescription, string pImage)
+        public Deal(int pID, string pName, string pDescription, string pImage)
         {
             _ID = pID;
             _Name = pName;
