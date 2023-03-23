@@ -2,7 +2,7 @@
 {
     public class Venue
     {
-        private string _ID;
+        private int _ID;
         private string _Name;
         private string _Description;
         private string _Location;
