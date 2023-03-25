@@ -2,23 +2,23 @@
 {
     public class Deal
     {
-        private int _ID;
-        private string _Name;
-        private string _Description;
-        private string _Image;
+        public int ID { get; private set; }
+        public string Name { get; private set; }
+        public string Description { get; private set; }
+        public string Image { get; private set; }
 
         public Deal(int pID, string pName, string pDescription, string pImage)
         {
-            _ID = pID;
-            _Name = pName;
-            _Description = pDescription;
-            _Image = pImage;
+            ID = pID;
+            Name = pName;
+            Description = pDescription;
+            Image = pImage;
         }
 
 
         public override string ToString()
         {
-            return _Name;
+            return Name;
         }
     }
 }

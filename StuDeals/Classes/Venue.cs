@@ -2,31 +2,31 @@
 {
     public class Venue
     {
-        private int _ID;
-        private string _Name;
-        private string _Description;
-        private string _Location;
-        private string _Image;
-        private List<string> _Tags;
+        public int ID { get; private set; }
+        public string Name { get; private set; }
+        public string Description { get; private set; }
+        public string Location { get; private set; }
+        public string Image { get; private set; }
+        public List<string> Tags { get; private set; }
 
         public Venue(int pID, string pName, string pDescription, string pLocation, string pImage)
         {
-            _ID = pID;
-            _Name = pName;
-            _Description = pDescription;
-            _Location = pLocation;
-            _Image = pImage;
-            _Tags = new List<string>();
+            ID = pID;
+            Name = pName;
+            Description = pDescription;
+            Location = pLocation;
+            Image = pImage;
+            Tags = new List<string>();
         }
 
         public void AddTag(string pTag)
         {
-            _Tags.Add(pTag);
+            Tags.Add(pTag);
         }
 
         public override string ToString()
         {
-            return _Name;
+            return Name;
         }
     }
 }
