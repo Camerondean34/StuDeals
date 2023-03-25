@@ -5,8 +5,8 @@ namespace StuDeals.Classes
     public class DataLayer
     {
         private static DataLayer? _Instance;
-        private const string _Source = "Data\\Employees.db";
-        private SQLiteConnectionStringBuilder connectionStringBuilder;
+        private const string _Source = "Data\\SQLiteDB.db";
+        private string _ConnectionString;
 
         public static DataLayer Instance
         {
@@ -22,14 +22,15 @@ namespace StuDeals.Classes
 
         private DataLayer()
         {
-            connectionStringBuilder = new SQLiteConnectionStringBuilder();
+            SQLiteConnectionStringBuilder connectionStringBuilder = new SQLiteConnectionStringBuilder();
             connectionStringBuilder.DataSource = _Source;
+            _ConnectionString = connectionStringBuilder.ConnectionString;
         }
 
         private string[][] SelectAll(string pTableName, string pCondition = "")
         {
             List<string[]> result = new List<string[]>();
-            using (SQLiteConnection connection = new SQLiteConnection())
+            using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
             {
                 connection.Open();
                 SQLiteCommand getVenuesCommand = connection.CreateCommand();
@@ -77,7 +78,7 @@ namespace StuDeals.Classes
 
         private void Insert(string pTableCols, string pValues)
         {
-            using (SQLiteConnection connection = new SQLiteConnection())
+            using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
             {
                 connection.Open();
                 SQLiteCommand getVenuesCommand = connection.CreateCommand();
@@ -86,10 +87,14 @@ namespace StuDeals.Classes
             }
         }
 
-        public void InsertVenue(Venue venue)
+        public void InsertVenue(Venue pVenue)
         {
-            Insert("'Venues'", $"({""},{""},{""},{""},{""})");
-            //TODO create properties in Venue class
+            Insert("'Venues' ( ID, Name, Description, Location, Image)", $"('{pVenue.ID}','{pVenue.Name}','{pVenue.Description}','{pVenue.Location}','{pVenue.Image}')");
+        }
+
+        public void InsertDeal(Deal pDeal)
+        {
+            Insert("'Deals' ( ID, Name, Description, Image)", $"('{pDeal.ID}','{pDeal.Name}','{pDeal.Description}','{pDeal.Image}')");
         }
     }
 }
