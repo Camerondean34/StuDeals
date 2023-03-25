@@ -1,0 +1,49 @@
+﻿@page "/venues"
+
+<PageTitle>Venues</PageTitle>
+
+@using StuDeals.Classes
+
+<h1>Venues</h1>
+
+<p>A list of all the venues in the database.</p>
+
+@if (venues == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Image Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var venue in venues)
+            {
+                <tr>
+                    <td>@venue.ID</td>
+                    <td>@venue.Name</td>
+                    <td>@venue.Description</td>
+                    <td>@venue.Location</td>
+                    <td>@venue.Image</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Venue[]? venues;
+
+    protected override async Task OnInitializedAsync()
+    {
+        venues = await Task.Factory.StartNew(() => DataLayer.Instance.GetVenues());
+    }
+}
