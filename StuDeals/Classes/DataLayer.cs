@@ -42,7 +42,9 @@ namespace StuDeals.Classes
                         string[] current = new string[reader.VisibleFieldCount];
                         for (int index = 0; index < reader.FieldCount; ++index)
                         {
-                            current[index] = (string)reader.GetValue(index);
+                            string? data = reader.GetValue(index).ToString();
+                            if (data == null) data = string.Empty;
+                            current[index] = data;
                         }
                         result.Add(current);
                     }
