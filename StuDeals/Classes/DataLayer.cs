@@ -33,9 +33,9 @@ namespace StuDeals.Classes
             using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
             {
                 connection.Open();
-                SQLiteCommand getVenuesCommand = connection.CreateCommand();
-                getVenuesCommand.CommandText = $"SELECT * FROM '{pTableName}' {pCondition};";
-                using (var reader = getVenuesCommand.ExecuteReader())
+                SQLiteCommand getAllCommand = connection.CreateCommand();
+                getAllCommand.CommandText = $"SELECT * FROM '{pTableName}' {pCondition};";
+                using (var reader = getAllCommand.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -73,7 +73,8 @@ namespace StuDeals.Classes
             Deal[] result = new Deal[dealFields.Length];
             for (int index = 0; index < dealFields.Length; ++index)
             {
-                result[index] = new Deal(int.Parse(dealFields[index][0]), dealFields[index][1], dealFields[index][2], dealFields[index][3]);
+                int venueID = int.Parse(SelectAll("Venues_has_Deals", $"WHERE Deals_ID = '{dealFields[index][0]}'")[0][0]);
+                result[index] = new Deal(int.Parse(dealFields[index][0]), dealFields[index][1], dealFields[index][2], dealFields[index][3], venueID);
             }
             return result;
         }
@@ -83,20 +84,57 @@ namespace StuDeals.Classes
             using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
             {
                 connection.Open();
-                SQLiteCommand getVenuesCommand = connection.CreateCommand();
-                getVenuesCommand.CommandText = $"INSERT INTO {pTableCols} VALUES {pValues};";
-                getVenuesCommand.ExecuteNonQuery();
+                SQLiteCommand insertCommand = connection.CreateCommand();
+                insertCommand.CommandText = $"INSERT INTO {pTableCols} VALUES {pValues};";
+                insertCommand.ExecuteNonQuery();
+            }
+        }
+
+        private int GetAmount(string pTableName)
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
+            {
+                connection.Open();
+                SQLiteCommand getAllCommand = connection.CreateCommand();
+                getAllCommand.CommandText = $"SELECT COUNT('ID') FROM '{pTableName}';";
+                string? value = getAllCommand.ExecuteScalar().ToString();
+                if (string.IsNullOrEmpty(value)) return 0;
+                return int.Parse(value);
+            }
+        }
+
+        private bool CheckExists(string pTableName, int pID)
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
+            {
+                connection.Open();
+                SQLiteCommand CheckCommand = connection.CreateCommand();
+                CheckCommand.CommandText = $"SELECT * FROM '{pTableName}' WHERE ID = '{pID}';";
+                if(CheckCommand.ExecuteScalar() == null)
+                {
+                    return false;
+                }
+                return true;
             }
         }
 
         public void InsertVenue(Venue pVenue)
         {
-            Insert("'Venues' ( ID, Name, Description, Location, Image)", $"('{pVenue.ID}','{pVenue.Name}','{pVenue.Description}','{pVenue.Location}','{pVenue.Image}')");
+            int currentID = GetAmount("Venues") + 1;
+            Insert("'Venues' ( ID, Name, Description, Location, Image)", $"('{currentID}','{pVenue.Name}','{pVenue.Description}','{pVenue.Location}','{pVenue.Image}')");
         }
 
-        public void InsertDeal(Deal pDeal)
+        public bool InsertDeal(Deal pDeal)
         {
-            Insert("'Deals' ( ID, Name, Description, Image)", $"('{pDeal.ID}','{pDeal.Name}','{pDeal.Description}','{pDeal.Image}')");
+            if(!CheckExists("Venues", pDeal.VenueID))
+            {
+                return false;
+            }
+
+            int currentDealID = GetAmount("Deals") + 1;
+            Insert("'Deals' ( ID, Name, Description, Image)", $"('{currentDealID}','{pDeal.Name}','{pDeal.Description}','{pDeal.Image}')");
+            Insert("'Venues_has_Deals' (Venues_ID, Deals_ID)", $"('{pDeal.VenueID}','{currentDealID}')");
+            return true;
         }
     }
 }

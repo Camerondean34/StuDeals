@@ -9,6 +9,8 @@
         public string Image { get; private set; }
         public List<string> Tags { get; private set; }
 
+        public Venue(string pName, string pDescription, string pLocation, string pImage) : this(0, pName, pDescription, pLocation, pImage) { }
+
         public Venue(int pID, string pName, string pDescription, string pLocation, string pImage)
         {
             ID = pID;
