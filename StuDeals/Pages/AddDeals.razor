@@ -1,0 +1,67 @@
+﻿@page "/add-deals"
+@using StuDeals.Classes
+
+<PageTitle>Add deal</PageTitle>
+
+<h1>Add a deal</h1>
+
+<p>
+    Enter Name:
+    <input @bind="_Name" />
+</p>
+
+<p>
+    Enter Description:
+    <input @bind="_Description" />
+</p>
+
+<p>
+    Enter Image Link:
+    <input @bind="_Image" />
+</p>
+
+<p>Enter Venue ID: @_VenueID </p>
+
+<p>
+    Select Venue:
+<select @bind="_VenueID">
+        @if (venues != null)
+        {
+            @foreach (Venue venue in venues)
+            {
+                <option value="@venue.ID">@venue.Name</option>
+            }
+        }
+</select>
+</p>
+<button class="btn btn-primary" @onclick="CreateDeal">Add deal</button> <p>@_Response</p>
+
+@code
+{
+    private string _Name = "Name";
+    private string _Description = "Description";
+    private string _Image = "Image Link";
+    private int _VenueID;
+
+    private string _Response = "";
+    private void CreateDeal()
+    {
+        _Response = "Inserting...";
+        Deal deal = new Deal(_Name, _Description, _Image, _VenueID);
+        if(DataLayer.Instance.InsertDeal(deal))
+        {
+            _Response = "Insert succesful";
+        }
+        else
+        {
+            _Response = "ERROR Occurred";
+        }
+    }
+
+    private Venue[]? venues;
+
+    protected override async Task OnInitializedAsync()
+    {
+        venues = await Task.Factory.StartNew(() => DataLayer.Instance.GetVenues());
+    }
+}

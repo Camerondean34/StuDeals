@@ -1,0 +1,49 @@
+﻿@page "/deallist"
+
+<PageTitle>Deals</PageTitle>
+
+@using StuDeals.Classes
+
+<h1>Deals</h1>
+
+<p>A list of all the deals in the database.</p>
+
+@if (Deals == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Image Link</th>
+                <th>Venue ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var Deal in Deals)
+            {
+                <tr>
+                    <td>@Deal.ID</td>
+                    <td>@Deal.Name</td>
+                    <td>@Deal.Description</td>
+                    <td>@Deal.Image</td>
+                    <td>@Deal.VenueID</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Deal[]? Deals;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Deals = await Task.Factory.StartNew(() => DataLayer.Instance.GetDeals());
+    }
+}
