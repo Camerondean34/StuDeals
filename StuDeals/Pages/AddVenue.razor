@@ -6,11 +6,6 @@
 <h1>Add a venue</h1>
 
 <p>
-    Enter ID:
-    <input @bind="_ID" />
-</p>
-
-<p>
     Enter Name:
     <input @bind="_Name" />
 </p>
@@ -34,7 +29,6 @@
 
 @code
 {
-    private string _ID = "ID";
     private string _Name = "Name";
     private string _Description = "Description";
     private string _Location = "Location";
@@ -44,7 +38,7 @@
     private void CreateVenue()
     {
         _Response = "Inserting...";
-        Venue venue = new Venue(int.Parse(_ID), _Name, _Description, _Location, _Image);
+        Venue venue = new Venue(_Name, _Description, _Location, _Image);
         DataLayer.Instance.InsertVenue(venue);
         _Response = "Insert succesful";
     }
