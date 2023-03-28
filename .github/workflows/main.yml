@@ -4,17 +4,17 @@ name: Push To Windows VM
 on:
     # Triggers the workflow on push request event for the main branch
     push:
-        branches: [main]
+      branches: [main]
 
 jobs:
-    deploy:
-        # Our previously created self-hosted runner
-        runs-on: self-hosted
+  deploy:
+    # Our previously created self-hosted runner
+    runs-on: self-hosted
 
-        # A sequence of tasks that will execute as part of the job
-        steps:
-            # Checks out our repository so we can access it
-            - uses: actions/checkout@v2
-            - name: Copy to host directory
-            # Copies our files from the GitHub runner location to the default VM host directory
-            - run: powershell Copy-Item -Path C:\Users\663497\Documents\actions-runner\* -Destination C:\inetpub\wwwroot -force
+    # A sequence of tasks that will execute as part of the job
+    steps:
+      # Checks out our repository so we can access it
+      - uses: actions/checkout@v2
+      - name: Copy to host directory
+      # Copies our files from the GitHub runner location to the default VM host directory
+        run: powershell Copy-Item -Path C:\Users\663497\Documents\actions-runner\_work\StuDeals\* -Destination C:\inetpub\wwwroot -force
