@@ -67,6 +67,12 @@ namespace StuDeals.Classes
             return result;
         }
 
+        //TODO Implement a filter to only return 5 star venues
+        public Venue[] GetFiveStarVenues()
+        {
+            return GetVenues();
+        }
+
         public Deal[] GetDeals()
         {
             string[][] dealFields = SelectAll("Deals");
