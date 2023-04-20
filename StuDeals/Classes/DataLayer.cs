@@ -67,6 +67,12 @@ namespace StuDeals.Classes
             return result;
         }
 
+        //TODO Implement a filter to only venues with 
+        public Venue[] GetVenuesWithTags(List<string> tags)
+        {
+            return GetVenues();
+        }
+
         //TODO Implement a filter to only return 5 star venues
         public Venue[] GetFiveStarVenues()
         {

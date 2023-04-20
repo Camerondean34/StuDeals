@@ -37,13 +37,44 @@ else
             }
         </tbody>
     </table>
+
+    <p>
+        Enter Tag:
+        <input @bind="_Tag" />
+    </p>
+
+    <button class="btn btn-primary" @onclick="AddTags">Add A Tag</button> <p>@_Response</p>
 }
 
 @code {
     private Venue[]? venues;
+    private String _Tag = "Tag";
+    private string _Response = "";
+    private List<string> _Tags = new List<string>();
+    private bool _FirstTag = true;
+    private string filteredBy = "";
 
     protected override async Task OnInitializedAsync()
     {
         venues = await Task.Factory.StartNew(() => DataLayer.Instance.GetVenues());
+    }
+
+    private void AddTags()
+    {
+        _Tags.Add(_Tag);
+        _Response = "Applying tags...";
+        DataLayer.Instance.GetVenuesWithTags(_Tags);
+        
+        if (_FirstTag == true)
+        {
+            filteredBy = _Tag;
+        }
+        else
+        {
+            filteredBy = filteredBy + ", " + _Tag;
+        }
+        _FirstTag = false;
+
+        _Response = "Applied tags: " + filteredBy;
     }
 }
