@@ -11,7 +11,6 @@
     }
 
         div.scrollmenu a {
-            max-width: 300px;
             display: inline-block;
             text-align: left;
             padding: 14px;
@@ -20,25 +19,43 @@
 
     img {
         border-radius: 8px;
-        width: 100%;
-        height: auto;
+        width: 300px;
+        height: 200px;
     }
 
     .container {
         position: relative;
     }
 
-    .bottom-left {
+    .overlay {
+        border-radius: 8px;
         position: absolute;
-        bottom: 8px;
-        left: 16px;
+        top: 0;
+        bottom: 0;
+        left: 12px;
+        right: 0;
+        opacity: 0;
+        height: 200px;
+        width: 0%;
+        transition: .5s ease;
+        background-color: darkslateblue;
     }
 
-    .bottom-right {
-        position: absolute;
-        bottom: 8px;
-        right: 16px;
+    .container:hover .overlay {
+        width: 300px;
+        opacity: 1;
     }
+
+    .text {
+        color: white;
+        font-size: 20px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+    }
+
 </style>
 
 <h1>Home</h1>
@@ -56,13 +73,14 @@ else
         @foreach (Venue venue in fiveStarVenues)
         {
             <a>
-                <NavLink class="nav-link" href="@($"venue/{venue.ID}")">
-                    <div class="container">
-                        <img src="@($"Images\\{venue.ImageLink}")">
-                        <div class="bottom-left">@venue.Name</div>
-                        <div class="bottom-right">@venue.Rating</div>
-                    </div>
-                </NavLink>
+                <div class="container">
+                    <img src="@($"Images\\{venue.ImageLink}")">
+                    <NavLink class="nav-link" href="@($"venue/{venue.ID}")">
+                        <div class="overlay">
+                            <div class="text">@($"{@venue.Name}")</div>
+                        </div>
+                    </NavLink>
+                </div>
             </a>
         }
     </div>
