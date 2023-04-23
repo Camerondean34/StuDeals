@@ -32,7 +32,7 @@ else
                     <td>@venue.Name</td>
                     <td>@venue.Description</td>
                     <td>@venue.Location</td>
-                    <td>@venue.Image</td>
+                    <td>@venue.ImageLink</td>
                 </tr>
             }
         </tbody>
@@ -64,7 +64,7 @@ else
         _Tags.Add(_Tag);
         _Response = "Applying tags...";
         DataLayer.Instance.GetVenuesWithTags(_Tags);
-        
+
         if (_FirstTag == true)
         {
             filteredBy = _Tag;

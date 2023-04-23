@@ -1,4 +1,5 @@
-﻿using System.Data.SQLite;
+﻿using System;
+using System.Data.SQLite;
 
 namespace StuDeals.Classes
 {
@@ -53,18 +54,38 @@ namespace StuDeals.Classes
             return result.ToArray();
         }
 
+        private Venue? GenerateVenue(string[] pVenueFields)
+        {
+            if (pVenueFields.Length != 7) return null;
+            int ID;
+            float rating;
+            bool suggestion;
+            try
+            {
+                ID = int.Parse(pVenueFields[0]);
+                rating = float.Parse(pVenueFields[5]);
+                suggestion = bool.Parse(pVenueFields[6]);
+            }
+            catch
+            {
+                return null;
+            }
+            Venue result = new Venue(ID, pVenueFields[1], pVenueFields[2], pVenueFields[3], pVenueFields[4], rating, suggestion);
+            string[][] tags = SelectAll("Tags", $"WHERE 'ID' = '{ID}'");
+            foreach (string[] tag in tags) result.AddTag(tag[0]);
+            return result;
+        }
+
         public Venue[] GetVenues()
         {
             string[][] venueFields = SelectAll("Venues");
-            Venue[] result = new Venue[venueFields.Length];
+            List<Venue> result = new List<Venue>();
             for (int index = 0; index < venueFields.Length; ++index)
             {
-                int ID = int.Parse(venueFields[index][0]);
-                result[index] = new Venue(ID, venueFields[index][1], venueFields[index][2], venueFields[index][3], venueFields[index][4]);
-                string[][] tags = SelectAll("Tags", $"WHERE 'ID' = '{ID}'");
-                foreach (string[] tag in tags) result[index].AddTag(tag[0]);
+                Venue? currentVenue = GenerateVenue(venueFields[index]);
+                if (currentVenue != null) result.Add(currentVenue);
             }
-            return result;
+            return result.ToArray();
         }
 
         //TODO Implement a filter to only venues with 
@@ -122,7 +143,7 @@ namespace StuDeals.Classes
                 connection.Open();
                 SQLiteCommand CheckCommand = connection.CreateCommand();
                 CheckCommand.CommandText = $"SELECT * FROM '{pTableName}' WHERE ID = '{pID}';";
-                if(CheckCommand.ExecuteScalar() == null)
+                if (CheckCommand.ExecuteScalar() == null)
                 {
                     return false;
                 }
@@ -133,12 +154,12 @@ namespace StuDeals.Classes
         public void InsertVenue(Venue pVenue)
         {
             int currentID = GetAmount("Venues") + 1;
-            Insert("'Venues' ( ID, Name, Description, Location, Image)", $"('{currentID}','{pVenue.Name}','{pVenue.Description}','{pVenue.Location}','{pVenue.Image}')");
+            Insert("'Venues' ( ID, Name, Description, Location, Image, Rating, Suggestion)", $"('{currentID}','{pVenue.Name}','{pVenue.Description}','{pVenue.Location}','{pVenue.ImageLink}', {pVenue.Rating}, '{pVenue.Suggestion}')");
         }
 
         public bool InsertDeal(Deal pDeal)
         {
-            if(!CheckExists("Venues", pDeal.VenueID))
+            if (!CheckExists("Venues", pDeal.VenueID))
             {
                 return false;
             }
@@ -147,6 +168,31 @@ namespace StuDeals.Classes
             Insert("'Deals' ( ID, Name, Description, Image)", $"('{currentDealID}','{pDeal.Name}','{pDeal.Description}','{pDeal.Image}')");
             Insert("'Venues_has_Deals' (Venues_ID, Deals_ID)", $"('{pDeal.VenueID}','{currentDealID}')");
             return true;
+        }
+
+        public Venue? SelectVenue(int pID)
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
+            {
+                connection.Open();
+                SQLiteCommand getCommand = connection.CreateCommand();
+                getCommand.CommandText = $"SELECT * FROM 'Venues' WHERE ID = '{pID}';";
+                using (var reader = getCommand.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        string[] venueFields = new string[reader.VisibleFieldCount];
+                        for (int index = 0; index < reader.FieldCount; ++index)
+                        {
+                            string? data = reader.GetValue(index).ToString();
+                            if (data == null) data = string.Empty;
+                            venueFields[index] = data;
+                        }
+                        return GenerateVenue(venueFields);
+                    }
+                }
+            }
+            return null;
         }
     }
 }

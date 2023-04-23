@@ -38,7 +38,7 @@
     private void CreateVenue()
     {
         _Response = "Inserting...";
-        Venue venue = new Venue(_Name, _Description, _Location, _Image);
+        Venue venue = new Venue(_Name, _Description, _Location, _Image, 0, true);
         DataLayer.Instance.InsertVenue(venue);
         _Response = "Insert succesful";
     }

@@ -1,0 +1,34 @@
+﻿@page "/venue"
+@page "/venue/{ID:int}"
+
+@using StuDeals.Classes
+
+
+@if (venue == null)
+{
+    <PageTitle>Unknown Venue</PageTitle>
+
+    <p><em>Couldn't load venue with ID @ID</em></p>
+}
+else
+{
+    <PageTitle>@venue.Name</PageTitle>
+    <h3>@venue.Name</h3>
+    <p>@venue.ID</p>
+    <p>@venue.Name</p>
+    <p>@venue.Description</p>
+    <p>@venue.Location</p>
+    <p>@venue.ImageLink</p>
+}
+
+
+@code {
+    private Venue? venue = null;
+    [Parameter]
+    public int ID { get; set; }
+
+    protected override void OnInitialized()
+    {
+        venue = DataLayer.Instance.SelectVenue(ID);
+    }
+}

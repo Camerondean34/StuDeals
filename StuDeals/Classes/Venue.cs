@@ -6,18 +6,22 @@
         public string Name { get; private set; }
         public string Description { get; private set; }
         public string Location { get; private set; }
-        public string Image { get; private set; }
+        public string ImageLink { get; private set; }
+        public float Rating { get; private set; }
+        public bool Suggestion { get; private set; }
         public List<string> Tags { get; private set; }
 
-        public Venue(string pName, string pDescription, string pLocation, string pImage) : this(0, pName, pDescription, pLocation, pImage) { }
+        public Venue(string pName, string pDescription, string pLocation, string pImage, float pRating, bool pSuggestion) : this(0, pName, pDescription, pLocation, pImage, pRating, pSuggestion) { }
 
-        public Venue(int pID, string pName, string pDescription, string pLocation, string pImage)
+        public Venue(int pID, string pName, string pDescription, string pLocation, string pImage, float pRating, bool pSuggestion)
         {
             ID = pID;
             Name = pName;
             Description = pDescription;
             Location = pLocation;
-            Image = pImage;
+            ImageLink = pImage;
+            Rating = pRating;
+            Suggestion = pSuggestion;
             Tags = new List<string>();
         }
 
