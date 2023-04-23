@@ -4,47 +4,76 @@
 
 @using StuDeals.Classes
 
+<style>
+    div.scrollmenu {
+        overflow: auto;
+        white-space: nowrap;
+    }
+
+        div.scrollmenu a {
+            max-width: 300px;
+            display: inline-block;
+            text-align: left;
+            padding: 14px;
+            text-decoration: none;
+        }
+
+    img {
+        border-radius: 8px;
+        width: 100%;
+        height: auto;
+    }
+
+    .container {
+        position: relative;
+    }
+
+    .bottom-left {
+        position: absolute;
+        bottom: 8px;
+        left: 16px;
+    }
+
+    .bottom-right {
+        position: absolute;
+        bottom: 8px;
+        right: 16px;
+    }
+</style>
+
 <h1>Home</h1>
 
 Highly rated venues.
 
-@if (venues == null)
+@if (fiveStarVenues == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Location</th>
-                <th>Image Link</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var venue in venues)
-            {
-                <tr>
-                    <td>@venue.ID</td>
-                    <td>@venue.Name</td>
-                    <td>@venue.Description</td>
-                    <td>@venue.Location</td>
-                    <td>@venue.ImageLink</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <span class="oi oi-star-filled" aria-hidden="true"></span>
+    <div class="scrollmenu">
+        @foreach (Venue venue in fiveStarVenues)
+        {
+            <a>
+                <NavLink class="nav-link" href="@($"venue/{venue.ID}")">
+                    <div class="container">
+                        <img src="@($"Images\\{venue.ImageLink}")">
+                        <div class="bottom-left">@venue.Name</div>
+                        <div class="bottom-right">@venue.Rating</div>
+                    </div>
+                </NavLink>
+            </a>
+        }
+    </div>
 }
 
 @code
 {
-    private Venue[]? venues;
+    private Venue[]? fiveStarVenues;
 
     protected override async Task OnInitializedAsync()
     {
-        venues = await Task.Factory.StartNew(() => DataLayer.Instance.GetFiveStarVenues());
+        fiveStarVenues = await Task.Factory.StartNew(() => DataLayer.Instance.GetFiveStarVenues());
     }
 }
