@@ -18,7 +18,9 @@ else
     <p>@venue.Name</p>
     <p>@venue.Description</p>
     <p>@venue.Location</p>
-    <p>@venue.ImageLink</p>
+    <p>
+        <img src="@($"Images\\{venue.ImageLink}")" />
+    </p>
 }
 
 
