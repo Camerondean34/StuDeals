@@ -27,9 +27,13 @@ else
         <tbody>
             @foreach (var venue in venues)
             {
+
                 <tr>
                     <td>@venue.ID</td>
-                    <td>@venue.Name</td>
+                    <NavLink class="nav-link" href="@($"venue/{venue.ID}")">
+                        <td>@venue.Name</td>
+                    </NavLink>
+
                     <td>@venue.Description</td>
                     <td>@venue.Location</td>
                     <td>@venue.ImageLink</td>
