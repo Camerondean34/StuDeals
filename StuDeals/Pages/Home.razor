@@ -46,6 +46,14 @@
         opacity: 1;
     }
 
+    .bottomright {
+        color: white;
+        position: absolute;
+        bottom: 8px;
+        right: 50px;
+        font-size: 18px;
+    }
+
     .text {
         color: white;
         font-size: 20px;
@@ -75,6 +83,7 @@ else
             <a>
                 <div class="container">
                     <img src="@($"Images\\{venue.ImageLink}")">
+                    <div class="bottomright">@($"{venue.Rating} ★")</div>
                     <NavLink class="nav-link" href="@($"venue/{venue.ID}")">
                         <div class="overlay">
                             <div class="text">@($"{@venue.Name}")</div>
