@@ -7,16 +7,13 @@ namespace StuDeals.Classes
     {
         private static DataLayer? _Instance;
         private const string _Source = "Data\\SQLiteDB.db";
-        private string _ConnectionString;
+        private readonly string _ConnectionString;
 
         public static DataLayer Instance
         {
             get
             {
-                if (_Instance == null)
-                {
-                    _Instance = new DataLayer();
-                }
+                _Instance ??= new DataLayer();
                 return _Instance;
             }
         }
@@ -44,7 +41,7 @@ namespace StuDeals.Classes
                         for (int index = 0; index < reader.FieldCount; ++index)
                         {
                             string? data = reader.GetValue(index).ToString();
-                            if (data == null) data = string.Empty;
+                            data ??= string.Empty;
                             current[index] = data;
                         }
                         result.Add(current);
@@ -185,7 +182,7 @@ namespace StuDeals.Classes
                         for (int index = 0; index < reader.FieldCount; ++index)
                         {
                             string? data = reader.GetValue(index).ToString();
-                            if (data == null) data = string.Empty;
+                            data ??= string.Empty;
                             venueFields[index] = data;
                         }
                         return GenerateVenue(venueFields);
