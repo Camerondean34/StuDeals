@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Security.Cryptography;
 
@@ -199,18 +201,40 @@ namespace StuDeals.Classes
             {
                 connection.Open();
                 SQLiteCommand getCommand = connection.CreateCommand();
-                getCommand.CommandText = $"SELECT * FROM User WHERE Username = '{pUsername}' AND Password = '{pPassword}';";
+                getCommand.CommandText = $"SELECT ID FROM User WHERE Username = '{pUsername}' AND Password = '{pPassword}';";
+                int ID;
+                try
+                {
+                    string? strID = getCommand.ExecuteScalar().ToString();
+                    if (strID == null) return null;
+                    ID = int.Parse(strID);
+                }
+                catch
+                {
+                    return null;
+                }
+                return GetAccount(ID);
+            }
+        }
+
+        public Account? GetAccount(int pID)
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
+            {
+                connection.Open();
+                SQLiteCommand getCommand = connection.CreateCommand();
+                getCommand.CommandText = $"SELECT * FROM User WHERE ID = '{pID}';";
                 using (var reader = getCommand.ExecuteReader())
                 {
                     if (reader.Read())
                     {
                         try
                         {
-                            int ID = int.Parse((string)reader.GetValue(0));
+                            string username = (string)reader.GetValue(1);
                             string name = (string)reader.GetValue(2);
                             string email = (string)reader.GetValue(3);
                             Account.AccountType type = Enum.Parse<Account.AccountType>((string)reader.GetValue(5), true);
-                            return new Account(ID, pUsername, name, email, type);
+                            return new Account(pID, username, name, email, type);
                         }
                         catch { }
                     }
@@ -228,16 +252,26 @@ namespace StuDeals.Classes
             Insert("'User' ( ID, Username, Name, Email, Password, Occupation)", $"('{currentID}','{pUsername}','{pName}','{pEmail}','{pPassword}', '{type}')");
         }
 
-        public bool DeleteVenue(int pID)
+        private bool Delete(string pTableName, int pID)
         {
             using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
             {
                 connection.Open();
                 SQLiteCommand delCommand = connection.CreateCommand();
-                delCommand.CommandText = $"DELETE FROM 'Venues' WHERE ID = '{pID}';";
+                delCommand.CommandText = $"DELETE FROM '{pTableName}' WHERE ID = '{pID}';";
                 if (delCommand.ExecuteNonQuery() > 0) return true;
                 return false;
             }
+        }
+
+        public bool DeleteVenue(int pID)
+        {
+            return Delete("Venues", pID);
+        }
+
+        public bool DeleteRating(int pID)
+        {
+            return Delete("Rating", pID);
         }
 
         public void AcceptSuggestion(int pID, string pDescription, string pImageLink)
@@ -250,5 +284,53 @@ namespace StuDeals.Classes
                 updateCommand.ExecuteNonQuery();
             }
         }
+
+        public List<Rating> GetRatings(int pVenueID)
+        {
+            List<Rating> list = new List<Rating>();
+            using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
+            {
+                connection.Open();
+                SQLiteCommand getCommand = connection.CreateCommand();
+                getCommand.CommandText = $"SELECT * FROM 'Rating' WHERE Venues_ID = '{pVenueID}';";
+                using (var reader = getCommand.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        try
+                        {
+                            int ID = (int)reader["ID"];
+                            string text = (string)reader["Text"];
+                            int stars = int.Parse((string)reader["Stars"]);
+                            int userID = int.Parse((string)reader["User_ID"]);
+                            Account? user = GetAccount(userID);
+                            if (user == null) continue;
+                            list.Add(new Rating(ID, user, text, stars));
+                        }
+                        catch { }
+                    }
+                }
+            }
+            return list;
+        }
+
+        public void AddRating(int pVenueID, Account pAccount, string pText, int pStars)
+        {
+            int currentID = GetAmount("Rating") + 1;
+            Insert("'Rating' ( ID, Venues_ID, User_ID, Text, Stars)", $"('{currentID}', '{pVenueID}', '{pAccount.ID}', '{pText}', '{pStars}')");
+            List<Rating> list = GetRatings(pVenueID);
+            float averageRating = 0;
+            foreach (Rating rating in list) averageRating += rating.Stars;
+            if (averageRating > 0 && list.Count > 0) averageRating /= list.Count;
+
+            using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
+            {
+                connection.Open();
+                SQLiteCommand updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = $"UPDATE 'Venues' SET 'Rating' = '{(float)Math.Round(averageRating, 1)}' WHERE ID = '{pVenueID}';";
+                updateCommand.ExecuteNonQuery();
+            }
+        }
+
     }
 }

@@ -3,6 +3,11 @@
 
 @using StuDeals.Classes
 
+<style>
+    hr.solid {
+        border-top: 3px solid #bbb;
+    }
+</style>
 
 @if (venue == null)
 {
@@ -13,24 +18,126 @@
 else
 {
     <PageTitle>@venue.Name</PageTitle>
-    <h3>@venue.Name</h3>
-    <p>@venue.ID</p>
-    <p>@venue.Name</p>
-    <p>@venue.Description</p>
-    <p>@venue.Location</p>
+
+    <h2>@venue.Name</h2>
     <p>
-        <img src="@($"Images\\{venue.ImageLink}")" />
+        @venue.Rating
+        @for (int index = 1; index <= 5; ++index)
+        {
+            if (index <= Math.Round(venue.Rating, MidpointRounding.ToNegativeInfinity))
+            {
+                <b>★</b>
+            }
+            else
+            {
+                <b>☆</b>
+            }
+        }
     </p>
+    <img src="@($"Images\\{venue.ImageLink}")" />
+    <p>@venue.Description</p>
+    <p><b>Address:</b>@venue.Location</p>
+
+    <p><b>Comments:</b></p>
+    <hr class="solid" />
+    @if (ratings == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        @foreach (var rating in ratings)
+        {
+            <p>
+                <b>@rating.Account.Username</b>
+                (@rating.Account.Name)
+                @rating.Stars ★
+                @if (Account.CurrentAccount != null && (Account.CurrentAccount.Type == Account.AccountType.Mod || Account.CurrentAccount.ID == rating.Account.ID))
+                {
+                    <button class="btn btn-primary" @onclick="() => DeleteComment(rating)">Delete</button>
+                }
+            </p>
+            <p>@rating.Text</p>
+        }
+    }
+
+    <h3>Give your opinion on @venue.Name!</h3>
+
+    @if (Account.CurrentAccount != null)
+    {
+        @if (HasCommented)
+        {
+            <p>You can only comment once.</p>
+        }
+        else
+        {
+            <p>
+                <input type="range" min="1" max="5" @bind="_Stars">
+                @_Stars
+            </p>
+
+            <p>
+                Comment:
+                <input @bind="_Comment" />
+            </p>
+
+            <button class="btn btn-primary" disabled="@disableButton" @onclick="SubmitRating">Submit Rating</button>
+            <p>@_Response</p>
+        }
+    }
+    else
+    {
+        <p>Please login or make an account to comment.</p>
+    }
+
 }
 
 
 @code {
     private Venue? venue = null;
+    private List<Rating>? ratings = null;
+
     [Parameter]
     public int ID { get; set; }
+
+    private bool HasCommented = false;
+
+    private string _Comment = String.Empty;
+    private int _Stars = 3;
+    private bool disableButton = false;
+    private string _Response = String.Empty;
 
     protected override void OnInitialized()
     {
         venue = DataLayer.Instance.SelectVenue(ID);
+        ratings = DataLayer.Instance.GetRatings(ID);
+
+        if (Account.CurrentAccount != null)
+        {
+            foreach (Rating rating in ratings)
+            {
+                if (rating.Account.ID == Account.CurrentAccount.ID)
+                {
+                    HasCommented = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    private void SubmitRating()
+    {
+        if (Account.CurrentAccount != null)
+        {
+            DataLayer.Instance.AddRating(ID, Account.CurrentAccount, _Comment, _Stars);
+            disableButton = true;
+            _Response = "Thank you for your rating!";
+        }
+    }
+
+    private void DeleteComment(Rating pRating)
+    {
+        DataLayer.Instance.DeleteRating(pRating.ID);
+        if (ratings != null) ratings.Remove(pRating);
     }
 }
