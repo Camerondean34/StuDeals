@@ -36,7 +36,26 @@ else
     </p>
     <img src="@($"Images\\{venue.ImageLink}")" />
     <p>@venue.Description</p>
-    <p><b>Address:</b>@venue.Location</p>
+    <p>
+        <b>Tags: </b>
+        @for (int index = 0; index < venue.Tags.Count; ++index)
+        {
+            <i>@venue.Tags[index]</i>
+            @if (index + 1 != venue.Tags.Count)
+            {
+                <i>, </i>
+            }
+        }
+        @if (Account.CurrentAccount != null && Account.CurrentAccount.Type == Account.AccountType.Mod)
+        {
+            <br />
+            <b>Add Tags: </b>
+            <br />
+            <input @bind="_Tag" />
+            <button class="btn btn-primary" @onclick="AddTag">Add Tag</button>
+        }
+    </p>
+    <p><b>Address: </b>@venue.Location</p>
 
     <p><b>Comments:</b></p>
     <hr class="solid" />
@@ -139,5 +158,12 @@ else
     {
         DataLayer.Instance.DeleteRating(pRating.ID);
         if (ratings != null) ratings.Remove(pRating);
+    }
+
+
+    private string _Tag = String.Empty;
+    private void AddTag()
+    {
+        DataLayer.Instance.InserTag(_Tag, ID);
     }
 }
