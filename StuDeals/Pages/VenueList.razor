@@ -22,6 +22,11 @@ else
                 <th>Description</th>
                 <th>Location</th>
                 <th>Image Link</th>
+                @if (Account.CurrentAccount != null && Account.CurrentAccount.Type == Account.AccountType.Mod)
+                {
+                    <th></th>
+                }
+
             </tr>
         </thead>
         <tbody>
@@ -37,6 +42,10 @@ else
                     <td>@venue.Description</td>
                     <td>@venue.Location</td>
                     <td>@venue.ImageLink</td>
+                    @if (Account.CurrentAccount != null && Account.CurrentAccount.Type == Account.AccountType.Mod)
+                    {
+                        <td><button class="btn btn-primary" @onclick="() => DeleteVenue(venue)">Delete</button></td>
+                    }
                 </tr>
             }
         </tbody>
@@ -51,7 +60,7 @@ else
 }
 
 @code {
-    private Venue[]? venues;
+    private List<Venue>? venues;
     private String _Tag = "Tag";
     private string _Response = "";
     private List<string> _Tags = new List<string>();
@@ -60,7 +69,14 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        venues = await Task.Factory.StartNew(() => DataLayer.Instance.GetVenues());
+        Venue[] venueList = await Task.Factory.StartNew(() => DataLayer.Instance.GetVenues());
+        venues = new List<Venue>(venueList);
+    }
+
+    private void DeleteVenue(Venue pVenue)
+    {
+        DataLayer.Instance.DeleteVenue(pVenue.ID);
+        venues.Remove(pVenue);
     }
 
     private void AddTags()
