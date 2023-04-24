@@ -1,0 +1,40 @@
+﻿@page "/login"
+
+@using StuDeals.Classes
+@inject NavigationManager NavManager
+
+<PageTitle>Log In</PageTitle>
+
+<h3>Login</h3>
+
+<p>
+    Username:
+    <input @bind="_Username" />
+</p>
+
+<p>
+    Password:
+    <input @bind="_Password" />
+</p>
+
+<button class="btn btn-primary" @onclick="AttemptLogin">Log in</button> <p>@_Response</p>
+
+@code
+{
+    private string _Username = string.Empty;
+    private string _Password = string.Empty;
+
+    private string _Response = string.Empty;
+    private void AttemptLogin()
+    {
+        _Response = string.Empty;
+        if (Account.LogIn(_Username, _Password))
+        {
+            NavManager.NavigateTo("/");
+        }
+        else
+        {
+            _Response = "Failed to log in";
+        }
+    }
+}

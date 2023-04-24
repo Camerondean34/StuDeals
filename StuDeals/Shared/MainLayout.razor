@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
+@using StuDeals.Classes
+
 <PageTitle>StuDeals</PageTitle>
 
 <div class="page">
@@ -9,7 +11,15 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+
+            @if (Account.CurrentAccount == null)
+            {
+                <NavLink class="nav-link" href="login">Log in</NavLink>
+            }
+            else
+            {
+                <p>Welcome Back @Account.CurrentAccount.Name</p>
+            }
         </div>
 
         <article class="content px-4">

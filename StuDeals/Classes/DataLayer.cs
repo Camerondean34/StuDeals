@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SQLite;
+using System.Security.Cryptography;
 
 namespace StuDeals.Classes
 {
@@ -190,6 +191,41 @@ namespace StuDeals.Classes
                 }
             }
             return null;
+        }
+
+        public Account? GetAccount(string pUsername, string pPassword)
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
+            {
+                connection.Open();
+                SQLiteCommand getCommand = connection.CreateCommand();
+                getCommand.CommandText = $"SELECT * FROM User WHERE Username = '{pUsername}' AND Password = '{pPassword}';";
+                using (var reader = getCommand.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        try
+                        {
+                            int ID = int.Parse((string)reader.GetValue(0));
+                            string name = (string)reader.GetValue(2);
+                            string email = (string)reader.GetValue(3);
+                            Account.AccountType type = Enum.Parse<Account.AccountType>((string)reader.GetValue(5), true);
+                            return new Account(ID, pUsername, name, email, type);
+                        }
+                        catch { }
+                    }
+                }
+            }
+            return null;
+        }
+
+        public void InsertUser(string pUsername, string pName, string pEmail, string pPassword, Account.AccountType pType)
+        {
+            int currentID = GetAmount("User") + 1;
+            string type;
+            if (pType == Account.AccountType.User) type = "USER";
+            else type = "MOD";
+            Insert("'User' ( ID, Username, Name, Email, Password, Occupation)", $"('{currentID}','{pUsername}','{pName}','{pEmail}','{pPassword}', '{type}')");
         }
     }
 }
