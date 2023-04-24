@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 
 namespace StuDeals.Classes
@@ -35,7 +36,7 @@ namespace StuDeals.Classes
             {
                 connection.Open();
                 SQLiteCommand getAllCommand = connection.CreateCommand();
-                getAllCommand.CommandText = $"SELECT * FROM '{pTableName}' {pCondition};";
+                getAllCommand.CommandText = $"SELECT * FROM {pTableName} {pCondition};";
                 using (var reader = getAllCommand.ExecuteReader())
                 {
                     while (reader.Read())
@@ -71,8 +72,8 @@ namespace StuDeals.Classes
                 return null;
             }
             Venue result = new Venue(ID, pVenueFields[1], pVenueFields[2], pVenueFields[3], pVenueFields[4], rating, suggestion);
-            string[][] tags = SelectAll("Tags", $"WHERE 'ID' = '{ID}'");
-            foreach (string[] tag in tags) result.AddTag(tag[0]);
+            string[][] tags = SelectAll("Tags, Venues_has_Tags", $"WHERE Tags.ID = Venues_has_Tags.Tags_ID AND Venues_has_Tags.Venues_ID = '{ID}'");
+            foreach (string[] tag in tags) result.AddTag(tag[1]);
             return result;
         }
 
@@ -136,18 +137,25 @@ namespace StuDeals.Classes
             }
         }
 
-        private bool CheckExists(string pTableName, int pID)
+        private bool CheckExists(string pTableName, string pData, out int pID, string pField = "ID")
         {
+            pID = -1;
             using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
             {
                 connection.Open();
                 SQLiteCommand CheckCommand = connection.CreateCommand();
-                CheckCommand.CommandText = $"SELECT * FROM '{pTableName}' WHERE ID = '{pID}';";
-                if (CheckCommand.ExecuteScalar() == null)
+                CheckCommand.CommandText = $"SELECT ID FROM '{pTableName}' WHERE {pField} = '{pData}';";
+                object? objID = CheckCommand.ExecuteScalar();
+                if (objID != null)
                 {
-                    return false;
+                    string? strID = objID.ToString();
+                    if (strID != null)
+                    {
+                        pID = int.Parse(strID);
+                        return true;
+                    }
                 }
-                return true;
+                return false;
             }
         }
 
@@ -159,7 +167,7 @@ namespace StuDeals.Classes
 
         public bool InsertDeal(Deal pDeal)
         {
-            if (!CheckExists("Venues", pDeal.VenueID))
+            if (!CheckExists("Venues", pDeal.VenueID.ToString(), out _))
             {
                 return false;
             }
@@ -241,6 +249,18 @@ namespace StuDeals.Classes
                 }
             }
             return null;
+        }
+
+        public void InserTag(string pTag, int pVenueID)
+        {
+            int tagID;
+            if (!CheckExists("Tags", pTag, out tagID, "Name"))
+            {
+                tagID = GetAmount("Tags") + 1;
+                Insert("'Tags' ( ID, Name)", $"('{tagID}','{pTag}')");
+            }
+
+            Insert("Venues_has_Tags ( Venues_ID, Tags_ID)", $"('{pVenueID}', '{tagID}')");
         }
 
         public void InsertUser(string pUsername, string pName, string pEmail, string pPassword, Account.AccountType pType)
