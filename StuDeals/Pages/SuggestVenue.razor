@@ -1,0 +1,39 @@
+﻿@page "/suggest-venue"
+@using StuDeals.Classes
+
+<PageTitle>Suggest A Venue</PageTitle>
+
+<h1>Suggest a venue</h1>
+<p>Do you know of a good venue that isn't on our site?</p>
+<p>Feel free to suggest a venue to our team and we can add it to our site!</p>
+
+<p>
+    Enter the name of the venue:
+    <input @bind="_Name" />
+</p>
+
+<p>
+    Enter the location of the venue:
+    <input @bind="_Location" />
+</p>
+
+<button class="btn btn-primary" @onclick="CreateVenue" disabled="@button">Add Venue</button>
+
+<p>@_Response</p>
+
+@code
+{
+    private string _Name = string.Empty;
+    private string _Location = string.Empty;
+
+    private bool button = false;
+    private string _Response = string.Empty;
+    private void CreateVenue()
+    {
+        _Response = string.Empty;
+        Venue venue = new Venue(_Name, string.Empty, _Location, string.Empty, 0, true);
+        DataLayer.Instance.InsertVenue(venue);
+        button = true;
+        _Response = "This venue has been sent to our team. Thank you!";
+    }
+}

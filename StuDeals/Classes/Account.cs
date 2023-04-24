@@ -13,6 +13,11 @@
             return true;
         }
 
+        public static void LogOut()
+        {
+            CurrentAccount = null;
+        }
+
         public enum AccountType { User, Mod }
         public int ID { get; private set; }
         public string Username { get; private set; }

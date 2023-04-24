@@ -1,0 +1,51 @@
+﻿@page "/suggestions"
+
+<PageTitle>Venues</PageTitle>
+
+@using StuDeals.Classes
+
+<h1>Suggestions</h1>
+
+<p>A list of all the suggestions for venues</p>
+
+@if (suggestions == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var venue in suggestions)
+            {
+
+                <tr>
+                    <td>@venue.ID</td>
+                    <td>@venue.Name</td>
+                    <td>@venue.Location</td>
+                    <NavLink class="nav-link" href="@($"add-venue/{venue.ID}")">
+                        <td>Review</td>
+                    </NavLink>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+@code {
+    private Venue[]? suggestions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        suggestions = await Task.Factory.StartNew(() => DataLayer.Instance.GetVenues(true));
+    }
+}

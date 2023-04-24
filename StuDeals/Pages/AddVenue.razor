@@ -1,5 +1,8 @@
 ﻿@page "/add-venue"
+@page "/add-venue/{ID:int}"
+
 @using StuDeals.Classes
+@inject NavigationManager NavManager
 
 <PageTitle>Add Venue</PageTitle>
 
@@ -7,7 +10,7 @@
 
 <p>
     Enter Name:
-    <input @bind="_Name" />
+    <input disabled="@suggestion" @bind="_Name" />
 </p>
 
 <p>
@@ -17,7 +20,7 @@
 
 <p>
     Enter Location:
-    <input @bind="_Location" />
+    <input disabled="@suggestion" @bind="_Location" />
 </p>
 
 <p>
@@ -25,21 +28,56 @@
     <input @bind="_Image" />
 </p>
 
-<button class="btn btn-primary" @onclick="CreateVenue">Add Venue</button> <p>@_Response</p>
+<button class="btn btn-primary" @onclick="CreateVenue">Add Venue</button>
+@if (suggestion)
+{
+    <button class="btn btn-primary" @onclick="RemoveSuggestion">Remove Suggestion</button>
+}
 
 @code
 {
+    [Parameter]
+    public int ID { get; set; }
+
     private string _Name = "Name";
     private string _Description = "Description";
     private string _Location = "Location";
     private string _Image = "Image Link";
 
-    private string _Response = "";
+    private bool suggestion = false;
+    private Venue? _SuggestedVenue = null;
+
     private void CreateVenue()
     {
-        _Response = "Inserting...";
-        Venue venue = new Venue(_Name, _Description, _Location, _Image, 0, true);
-        DataLayer.Instance.InsertVenue(venue);
-        _Response = "Insert succesful";
+        if (suggestion)
+        {
+            DataLayer.Instance.AcceptSuggestion(ID, _Description, _Image);
+        }
+        else
+        {
+            Venue venue = new Venue(_Name, _Description, _Location, _Image, 0, false);
+            DataLayer.Instance.InsertVenue(venue);
+        }
+
+        NavManager.NavigateTo("suggestions");
+    }
+
+    private void RemoveSuggestion()
+    {
+        if (DataLayer.Instance.DeleteVenue(ID)) NavManager.NavigateTo("suggestions");
+
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Account.CurrentAccount == null || Account.CurrentAccount.Type != Account.AccountType.Mod) NavManager.NavigateTo("/");
+
+        _SuggestedVenue = DataLayer.Instance.SelectVenue(ID);
+        if (_SuggestedVenue != null)
+        {
+            _Name = _SuggestedVenue.Name;
+            _Location = _SuggestedVenue.Location;
+            suggestion = true;
+        }
     }
 }

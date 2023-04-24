@@ -74,9 +74,9 @@ namespace StuDeals.Classes
             return result;
         }
 
-        public Venue[] GetVenues()
+        public Venue[] GetVenues(bool pSuggestions = false)
         {
-            string[][] venueFields = SelectAll("Venues");
+            string[][] venueFields = SelectAll("Venues", $"WHERE Suggestion = '{pSuggestions}'");
             List<Venue> result = new List<Venue>();
             for (int index = 0; index < venueFields.Length; ++index)
             {
@@ -226,6 +226,29 @@ namespace StuDeals.Classes
             if (pType == Account.AccountType.User) type = "USER";
             else type = "MOD";
             Insert("'User' ( ID, Username, Name, Email, Password, Occupation)", $"('{currentID}','{pUsername}','{pName}','{pEmail}','{pPassword}', '{type}')");
+        }
+
+        public bool DeleteVenue(int pID)
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
+            {
+                connection.Open();
+                SQLiteCommand delCommand = connection.CreateCommand();
+                delCommand.CommandText = $"DELETE FROM 'Venues' WHERE ID = '{pID}';";
+                if (delCommand.ExecuteNonQuery() > 0) return true;
+                return false;
+            }
+        }
+
+        public void AcceptSuggestion(int pID, string pDescription, string pImageLink)
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(_ConnectionString))
+            {
+                connection.Open();
+                SQLiteCommand updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = $"UPDATE 'Venues' SET 'Description' = '{pDescription}', 'Image' = '{pImageLink}', 'Suggestion' = '{false}' WHERE ID = '{pID}';";
+                updateCommand.ExecuteNonQuery();
+            }
         }
     }
 }
