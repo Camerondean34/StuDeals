@@ -7,6 +7,8 @@
     </div>
 </div>
 
+@using StuDeals.Classes
+
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu" style="min-width:250px">
     <nav class="flex-column">
         <div class="nav-item px-3">
@@ -15,15 +17,24 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="add-venue">
-                <span class="oi oi-plus" aria-hidden="true"></span> Add Venue
+            <NavLink class="nav-link" href="suggest-venue">
+                <span class="oi oi-plus" aria-hidden="true"></span> Suggest Venue
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="add-deals">
-                <span class="oi oi-plus" aria-hidden="true"></span> Add Deals
-            </NavLink>
-        </div>
+
+        @if (Account.CurrentAccount != null && Account.CurrentAccount.Type == Account.AccountType.Mod)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="suggestions">
+                    <span class="oi oi-list" aria-hidden="true"></span> Review Suggestions
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="add-deals">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Add Deals
+                </NavLink>
+            </div>
+        }
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="venuelist">
@@ -43,8 +54,12 @@
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    private void ToggleNavMenu()
+    public void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+        InvokeAsync(() =>
+             {
+                 StateHasChanged();
+             });
     }
 }

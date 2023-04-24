@@ -1,12 +1,13 @@
 ﻿@inherits LayoutComponentBase
 
 @using StuDeals.Classes
+@inject NavigationManager NavManager
 
 <PageTitle>StuDeals</PageTitle>
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        <NavMenu @ref="Menu"></NavMenu>
     </div>
 
     <main>
@@ -18,7 +19,9 @@
             }
             else
             {
-                <p>Welcome Back @Account.CurrentAccount.Name</p>
+                <p style="padding: 14px;">Welcome Back @Account.CurrentAccount.Name</p>
+                @UpdateMenu()
+                <button class="btn btn-primary" @onclick="LogOut">Log Out</button>
             }
         </div>
 
@@ -27,3 +30,26 @@
         </article>
     </main>
 </div>
+
+@code
+{
+    private NavMenu? Menu;
+
+    private string UpdateMenu()
+    {
+        if (Menu != null)
+        {
+            Menu.ToggleNavMenu();
+            Menu.ToggleNavMenu();
+        }
+        return string.Empty;
+    }
+
+    private void LogOut()
+    {
+        Account.LogOut();
+        UpdateMenu();
+        NavManager.NavigateTo("/");
+
+    }
+}
