@@ -1,0 +1,54 @@
+﻿@page "/create-account"
+@using StuDeals.Classes
+@inject NavigationManager NavManager
+
+<PageTitle>Create an account</PageTitle>
+
+<h1>Create a new account</h1>
+
+<p>
+    Enter a Username:
+    <input @bind="_Username" />
+</p>
+
+<p>
+    Enter Name:
+    <input @bind="_Name" />
+</p>
+
+<p>
+    Enter Email:
+    <input @bind="_Email" />
+</p>
+
+<p>
+    Enter Password:
+    <input @bind="_Password" />
+</p>
+
+<button class="btn btn-primary" @onclick="CreateNewAccount">Create</button>
+<p>@_Response</p>
+
+@code
+{
+    private string _Username = String.Empty;
+    private string _Name = String.Empty;
+    private string _Email = String.Empty;
+    private string _Password = String.Empty;
+
+    private string _Response = "";
+    private void CreateNewAccount()
+    {
+        try
+        {
+            DataLayer.Instance.InsertUser(_Username, _Name, _Email, _Password, Account.AccountType.User);
+            Account.LogIn(_Username, _Password);
+        }
+        catch
+        {
+            _Response = "ERROR Occurred";
+            return;
+        }
+        NavManager.NavigateTo("/");
+    }
+}
