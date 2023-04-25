@@ -89,16 +89,33 @@ namespace StuDeals.Classes
             return result.ToArray();
         }
 
-        //TODO Implement a filter to only venues with 
-        public Venue[] GetVenuesWithTags(List<string> tags)
+        public Venue[] GetVenuesWithTags(string pTag)
         {
-            return GetVenues();
+            List<Venue> filteredList = new List<Venue>();
+            Venue[] unfiliteredList = GetVenues();
+            foreach (Venue venue in unfiliteredList)
+            {
+                foreach (string tag in venue.Tags)
+                {
+                    if (tag.ToLower() == pTag.ToLower())
+                    {
+                        filteredList.Add(venue);
+                        break;
+                    }
+                }
+            }
+            return filteredList.ToArray();
         }
 
-        //TODO Implement a filter to only return 5 star venues
-        public Venue[] GetFiveStarVenues()
+        public Venue[] GetTopFiveVenues()
         {
-            return GetVenues();
+            List<Venue> unfilteredList = GetVenues().OrderBy(i => i.Rating).ToList();
+            List<Venue> filteredList = new List<Venue>();
+            for (int index = unfilteredList.Count - 1; index >= 0 && index > unfilteredList.Count - 6; --index)
+            {
+                filteredList.Add(unfilteredList[index]);
+            }
+            return filteredList.ToArray();
         }
 
         public Deal[] GetDeals()

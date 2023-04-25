@@ -106,6 +106,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        fiveStarVenues = await Task.Factory.StartNew(() => DataLayer.Instance.GetFiveStarVenues());
+        fiveStarVenues = await Task.Factory.StartNew(() => DataLayer.Instance.GetTopFiveVenues());
     }
 }

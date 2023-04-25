@@ -8,6 +8,13 @@
 
 <p>A list of all the venues in the database.</p>
 
+<p>
+    Search For a specific Tag:
+</p>
+
+<input @bind="_SearchBar" />
+<button class="btn btn-primary" @onclick="SearchForTag">Search</button>
+
 @if (venues == null)
 {
     <p><em>Loading...</em></p>
@@ -17,11 +24,11 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>ID</th>
+                <th>Icon</th>
                 <th>Name</th>
+                <th>Tags</th>
                 <th>Description</th>
                 <th>Location</th>
-                <th>Image Link</th>
                 @if (Account.CurrentAccount != null && Account.CurrentAccount.Type == Account.AccountType.Mod)
                 {
                     <th></th>
@@ -34,14 +41,22 @@ else
             {
 
                 <tr>
-                    <td>@venue.ID</td>
+                    <td><img src="@($"Images\\{venue.ImageLink}")" style="height:50px; border-radius: 8px;" /></td>
                     <NavLink class="nav-link" href="@($"venue/{venue.ID}")">
                         <td>@venue.Name</td>
                     </NavLink>
-
+                    <td>
+                        @for (int index = 0; index < venue.Tags.Count; ++index)
+                        {
+                            <i>@venue.Tags[index]</i>
+                            @if (index + 1 != venue.Tags.Count)
+                            {
+                                <i>, </i>
+                            }
+                        }
+                    </td>
                     <td>@venue.Description</td>
                     <td>@venue.Location</td>
-                    <td>@venue.ImageLink</td>
                     @if (Account.CurrentAccount != null && Account.CurrentAccount.Type == Account.AccountType.Mod)
                     {
                         <td><button class="btn btn-primary" @onclick="() => DeleteVenue(venue)">Delete</button></td>
@@ -50,22 +65,11 @@ else
             }
         </tbody>
     </table>
-
-    <p>
-        Enter Tag:
-        <input @bind="_Tag" />
-    </p>
-
-    <button class="btn btn-primary" @onclick="AddTags">Add A Tag</button> <p>@_Response</p>
 }
 
 @code {
     private List<Venue>? venues;
-    private String _Tag = "Tag";
-    private string _Response = "";
-    private List<string> _Tags = new List<string>();
-    private bool _FirstTag = true;
-    private string filteredBy = "";
+    private string _SearchBar = String.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,25 +80,18 @@ else
     private void DeleteVenue(Venue pVenue)
     {
         DataLayer.Instance.DeleteVenue(pVenue.ID);
-        venues.Remove(pVenue);
+        if (venues != null) venues.Remove(pVenue);
     }
 
-    private void AddTags()
+    private void SearchForTag()
     {
-        _Tags.Add(_Tag);
-        _Response = "Applying tags...";
-        DataLayer.Instance.GetVenuesWithTags(_Tags);
-
-        if (_FirstTag == true)
+        if (_SearchBar == String.Empty)
         {
-            filteredBy = _Tag;
+            venues = new List<Venue>(DataLayer.Instance.GetVenues());
         }
         else
         {
-            filteredBy = filteredBy + ", " + _Tag;
+            venues = new List<Venue>(DataLayer.Instance.GetVenuesWithTags(_SearchBar));
         }
-        _FirstTag = false;
-
-        _Response = "Applied tags: " + filteredBy;
     }
 }
